@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Shopping Cart</title>
@@ -9,6 +9,13 @@
 <body>
 
 <div class="container">
+
+    <h1>Items</h1>
+    <div th:each="product : ${shoppingCart.getProducts()}">
+        <li th:text="${product.name}"></li>
+    </div>
+
+
     <form action="/purchase" method="get">
         <div class="mb-3">
             <label class="form-label" for="exampleInputEmail1">Name</label>

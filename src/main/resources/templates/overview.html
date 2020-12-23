@@ -8,9 +8,9 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Onlineshop</a>
+        <a class="navbar-brand" href="/overview">Onlineshop</a>
         <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"
                 class="navbar-toggler"
                 data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button">
@@ -19,10 +19,10 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a aria-current="page" class="nav-link active" href="#">Home</a>
+                    <a aria-current="page" class="nav-link active" href="/overview">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Shopping cart</a>
+                    <a class="nav-link" href="/shopping-cart">Shopping cart</a>
                 </li>
             </ul>
             <form class="d-flex">
@@ -41,7 +41,14 @@
                 <div class="card-body">
                     <h5 class="card-title" th:text="${product.getName()}"></h5>
                     <p class="card-text" th:text="${product.getDescription()}"></p>
-                    <a class="btn btn-primary" href="#">Add to shopping card</a>
+                    <div class="row">
+
+                        <form method="post" th:action="${'/addToShoppingCart?id=' + product.getId()}">
+                            <button class="btn btn-primary col-6" type="submit">Add to shopping card</button>
+                        </form>
+                        <input aria-describedby="emailHelp" class="form-control col-6" id="exampleInputEmail6"
+                               min="1" th:max="${product.getInStock()}" type="number">
+                    </div>
                 </div>
             </div>
         </div>
