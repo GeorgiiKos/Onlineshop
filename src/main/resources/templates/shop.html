@@ -1,0 +1,32 @@
+<html xmlns:th="https://www.thymeleaf.org">
+<body>
+
+<h4>Willkommen im Online-Shop mit der gro&szlig;en Auswahl</h4>
+
+<p style="color: blue" th:if="${message}" th:text="${message}"></p>
+
+<p>Arduino Starter-Set kaufen: 39,-</p>
+<img id="image" src="arduino.jpg"/>
+
+<p>
+<form action="bestellen" id="form" method="POST">
+    <input name="artikel" type="hidden" value="arduino"/>
+    <label for="fname">Anzahl</label>
+    <input id="anzahl" name="anzahl" required type="number" value="1"/>
+    <button form="form" id="button" type="submit" value="Submit">Bestellen</button>
+</form>
+</p>
+
+
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script>
+    $(document).on("mousemove mouseenter mouseleave click", "#button,#image", function (evt) {
+        $.get("/record?x=" + evt.pageX + "&y=" + evt.pageY + "&src=" + evt.target.id + "&type=" + evt.type);
+    });
+
+
+</script>
+
+</body>
+
+</html>
