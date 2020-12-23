@@ -8,14 +8,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @Document
 @AllArgsConstructor
-public class Product {
+public class Stock {
 
     @Id
     private String id;
-    private String name;
-    private double price;
-    private String description;
-    private String manufacturer;
-    private String imagePath;
-
+    private Product product;
+    private int inStock;
 }

@@ -8,12 +8,32 @@
 </head>
 <body>
 
-<div class="container">
-
-    <h1>Items</h1>
-    <div th:each="product : ${shoppingCart.getProducts()}">
-        <li th:text="${product.name}"></li>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/overview">Onlineshop</a>
+        <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"
+                class="navbar-toggler"
+                data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a aria-current="page" class="nav-link" href="/overview">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/shopping-cart">Shopping cart</a>
+                </li>
+            </ul>
+        </div>
     </div>
+</nav>
+
+<div class="mx-5 mt-3 w-50">
+    <h1>Items</h1>
+    <ul th:each="product : ${shoppingCart.getProducts()}">
+        <li th:text="${product.getName()}"></li>
+    </ul>
 
 
     <form action="/purchase" method="get">
@@ -56,6 +76,13 @@
         <button class="btn btn-primary" type="submit">Buy</button>
     </form>
 </div>
+
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script>
+    $(document).on("mousemove mouseenter mouseleave click", ".btn", function (evt) {
+        $.get("/record?x=" + evt.pageX + "&y=" + evt.pageY + "&src=" + evt.target.id + "&type=" + evt.type + "&webpage=shopping-cart");
+    });
+</script>
 
 </body>
 </html>

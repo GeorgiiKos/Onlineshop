@@ -25,35 +25,41 @@
                     <a class="nav-link" href="/shopping-cart">Shopping cart</a>
                 </li>
             </ul>
-            <form class="d-flex">
-                <input aria-label="Search" class="form-control me-2" placeholder="Search" type="search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
         </div>
     </div>
 </nav>
 
-<div class="container">
+<div class="mx-5 mt-3">
     <div class="row">
-        <div class="col-2" th:each="product : ${productList}">
+        <div class="col-3" th:each="stock : ${stockList}">
             <div class="card" style="width: 18rem;">
-                <img alt="..." class="card-img-top" src="...">
+                <img class="card-img-top" height="190px" th:src="${stock.product.imagePath}">
                 <div class="card-body">
-                    <h5 class="card-title" th:text="${product.getName()}"></h5>
-                    <p class="card-text" th:text="${product.getDescription()}"></p>
-                    <div class="row">
-
-                        <form method="post" th:action="${'/addToShoppingCart?id=' + product.getId()}">
-                            <button class="btn btn-primary col-6" type="submit">Add to shopping card</button>
-                        </form>
-                        <input aria-describedby="emailHelp" class="form-control col-6" id="exampleInputEmail6"
-                               min="1" th:max="${product.getInStock()}" type="number">
-                    </div>
+                    <h5 class="card-title" th:text="${stock.product.name}"></h5>
+                    <p class="card-text" th:text="${stock.product.description}"></p>
+                    <form method="get" th:action="@{/add-shopping-cart}" th:object="${addCartRequest}">
+                        <input class="d-none" th:name="stockId" th:value="${stock.id}"/>
+                        <div class="row mb-3">
+                            <label class="col-6 col-form-label">Amount</label>
+                            <div class="col-6">
+                                <input class="form-control" min="1" th:max="${stock.getInStock}"
+                                       th:name="amount" type="number" value="1"/>
+                            </div>
+                        </div>
+                        <button th:class="${'btn btn-primary cart-btn'}" type="submit">Add to shopping card</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script>
+    $(document).on("mousemove mouseenter mouseleave click", ".cart-btn", function (evt) {
+        $.get("/record?x=" + evt.pageX + "&y=" + evt.pageY + "&src=" + evt.target.id + "&type=" + evt.type + "&webpage=overview");
+    });
+</script>
 
 </body>
 </html>
