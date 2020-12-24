@@ -29,43 +29,51 @@
     </div>
 </nav>
 
-<div class="mx-5 mt-3 w-50">
-    <h1>Items</h1>
-    <ul th:each="product : ${shoppingCart.getProducts()}">
-        <li th:text="${product.getName()}"></li>
+<div class="mx-5 my-3 w-50">
+    <h1 th:text="${'Items (' + shoppingCart.totalCost + '$)'}">Items</h1>
+    <ul>
+        <th:block th:each="item : ${shoppingCart.productAmounts}">
+            <li th:text="${item.product.name + ' (x' + item.amount + ')'}"></li>
+        </th:block>
     </ul>
 
-
-    <form action="/purchase" method="get">
+    <form action="/purchase" method="get" th:action="@{/purchase}" th:object="${paymentInfo}">
         <div class="mb-3">
-            <label class="form-label" for="exampleInputEmail1">Name</label>
-            <input aria-describedby="emailHelp" class="form-control" id="exampleInputEmail4" type="email">
+            <label class="form-label" for="exampleInputEmail1">First name</label>
+            <input aria-describedby="emailHelp" class="form-control" id="exampleInputEmail4" th:field="*{firstName}"
+                   type="text">
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="exampleInputEmail2">Last name</label>
+            <input aria-describedby="emailHelp" class="form-control" id="exampleInputEmail2" th:field="*{lastName}"
+                   type="text">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Gender</label>
+            <select aria-label="Default select example" class="form-select" th:field="*{gender}">
+                <option selected value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Diverse">Diverse</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="exampleInputPassword3">Date of Birth</label>
+            <input class="form-control" id="exampleInputPassword3" th:field="*{dateOfBirth}" type="date">
         </div>
         <div class="mb-3">
             <label class="form-label" for="exampleInputEmail1">Email address</label>
-            <input aria-describedby="emailHelp" class="form-control" id="exampleInputEmail1" type="email">
+            <input aria-describedby="emailHelp" class="form-control" id="exampleInputEmail1" th:field="*{email}"
+                   type="email">
             <div class="form-text" id="emailHelp">We'll never share your email with anyone else 🤞🤞🤞</div>
         </div>
         <div class="mb-3">
             <label class="form-label" for="exampleInputPassword1">Address</label>
-            <input class="form-control" id="exampleInputPassword1" type="text">
+            <input class="form-control" id="exampleInputPassword1" th:field="*{address}" type="text">
         </div>
         <div class="mb-3">
-            <label class="form-label" for="exampleInputPassword3">Date of Birth</label>
-            <input class="form-control" id="exampleInputPassword3" type="date">
-        </div>
-        <div class="mb-3">
-            <select aria-label="Default select example" class="form-select">
-                <option selected>Gender</option>
-                <option value="1">Male</option>
-                <option value="2">Female</option>
-                <option value="3">Diverse</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <select aria-label="Default select example" class="form-select">
-                <option selected>Payment</option>
-                <option value="1">Credit Card</option>
+            <label class="form-label">Payment</label>
+            <select aria-label="Default select example" class="form-select" th:field="*{payment}">
+                <option selected value="1">Credit Card</option>
                 <option value="2">Paypal</option>
                 <option value="3">Direct Debit</option>
                 <option value="4">Sofort</option>

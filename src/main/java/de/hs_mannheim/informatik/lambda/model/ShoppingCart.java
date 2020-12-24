@@ -14,6 +14,10 @@ public class ShoppingCart {
 
     @Id
     private String sessionId;
-    private List<Product> products;
+    private List<ProductAmount> productAmounts;
+
+    public double getTotalCost() {
+        return productAmounts.stream().mapToDouble(item -> item.getProduct().getPrice() * item.getAmount()).sum();
+    }
 
 }
