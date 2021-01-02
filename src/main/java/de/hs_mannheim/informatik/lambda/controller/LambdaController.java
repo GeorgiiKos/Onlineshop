@@ -1,21 +1,18 @@
 package de.hs_mannheim.informatik.lambda.controller;
 
 import de.hs_mannheim.informatik.lambda.model.*;
-import de.hs_mannheim.informatik.lambda.repository.BillRepository;
-import de.hs_mannheim.informatik.lambda.repository.ClickstreamRepository;
-import de.hs_mannheim.informatik.lambda.repository.ShoppingCartRepository;
-import de.hs_mannheim.informatik.lambda.repository.StockRepository;
+import de.hs_mannheim.informatik.lambda.repository.*;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 @Controller
 public class LambdaController {
@@ -24,25 +21,38 @@ public class LambdaController {
     private final ClickstreamRepository clickstreamRepository;
     private final StockRepository stockRepository;
     private final ShoppingCartRepository shoppingCartRepository;
+    private final UserHitRepository userHitRepository;
+    private final HashMap<String, String> locationData;
 
-    public LambdaController(BillRepository billRepository, ClickstreamRepository clickstreamRepository, StockRepository stockRepository, ShoppingCartRepository shoppingCartRepository) {
+    public LambdaController(BillRepository billRepository, ClickstreamRepository clickstreamRepository, StockRepository stockRepository, ShoppingCartRepository shoppingCartRepository, UserHitRepository userHitRepository) {
         this.billRepository = billRepository;
         this.clickstreamRepository = clickstreamRepository;
         this.stockRepository = stockRepository;
         this.shoppingCartRepository = shoppingCartRepository;
+        this.userHitRepository = userHitRepository;
+
+        locationData = new LinkedHashMap<>();
+        locationData.put("u33dc0cpnp45", "Germany");
+        locationData.put("dr5rtwccpbpb", "USA");
+//        locationData.put("", "China");
+//        locationData.put("", "Brazil");
+//        locationData.put("", "Canada");
+//        locationData.put("", "South Africa");
     }
 
     @GetMapping("/")
-    public String redirect() {
+    public String redirect(HttpServletRequest request) {
+        System.out.println("redirected");
+        String geohash = (String) locationData.keySet().toArray()[(int) (Math.random() * locationData.size())];
+        System.out.println(geohash);
+        userHitRepository.save(new UserHit(LocalDateTime.now().toString(), request.getRemoteAddr(), geohash, locationData.get(geohash)));
         return "redirect:/overview";
     }
 
     @GetMapping("/record")
     @ResponseBody
-    public String recordEvents(@RequestParam int x, @RequestParam int y, @RequestParam String src, @RequestParam String type, @RequestParam String webpage, HttpServletRequest request) {
-        System.out.println(src + ": " + x + " " + y + " " + type);
-        System.out.println(request.getRemoteAddr());
-        Clickstream clickstream = new Clickstream(LocalDateTime.now().toString(), request.getRemoteAddr(), x, y, type, webpage);
+    public String recordEvents(@RequestParam String sourceElement, @RequestParam String webpage, HttpServletRequest request) {
+        Clickstream clickstream = new Clickstream(LocalDateTime.now().toString(), request.getRemoteAddr(), sourceElement, webpage);
 
         clickstreamRepository.save(clickstream);
 
@@ -51,7 +61,6 @@ public class LambdaController {
 
     @GetMapping("/overview")
     public String overview(ModelMap map, HttpSession session) {
-        System.out.println(session.getId());
         map.addAttribute("stockList", stockRepository.findAll());
         map.addAttribute("addCartRequest", new AddCartRequest());
         return "overview";
@@ -70,7 +79,6 @@ public class LambdaController {
         // find shopping cart
         ShoppingCart shoppingCart = shoppingCartRepository.findById(session.getId()).orElse(new ShoppingCart(session.getId(), new ArrayList<>()));
         // save form
-        // TODO: update products
         for (ProductAmount productAmount : shoppingCart.getProductAmounts()) {
             Stock stock = stockRepository.findByProductId(productAmount.getProduct().getId());
             stock.setInStock(stock.getInStock() - productAmount.getAmount());
@@ -86,8 +94,8 @@ public class LambdaController {
         return "redirect:/overview";
     }
 
-    @GetMapping("/add-shopping-cart")
-    public String addToShoppingCart(@ModelAttribute AddCartRequest addCartRequest, HttpSession session) {
+    @PostMapping("/add-shopping-cart")
+    public String addToShoppingCart(@ModelAttribute AddCartRequest addCartRequest, HttpSession session, Model model) {
         // find product stock
         Stock stock = stockRepository.findById(addCartRequest.getStockId()).orElseThrow(() -> new RuntimeException("Product not found"));
         // find shopping cart
@@ -104,6 +112,8 @@ public class LambdaController {
             shoppingCart.getProductAmounts().add(new ProductAmount(stock.getProduct(), addCartRequest.getAmount()));
         }
         shoppingCartRepository.save(shoppingCart);
+
+        model.addAttribute("message", addCartRequest.getAmount() + " " + stock.getProduct().getName() + " bestellt. Herzlichen Dank!");
         return "redirect:/overview";
     }
 

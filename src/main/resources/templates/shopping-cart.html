@@ -87,8 +87,12 @@
 
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script>
-    $(document).on("mousemove mouseenter mouseleave click", ".btn", function (evt) {
-        $.get("/record?x=" + evt.pageX + "&y=" + evt.pageY + "&src=" + evt.target.id + "&type=" + evt.type + "&webpage=shopping-cart");
+    // $(document).on("mousemove mouseenter mouseleave click", ".btn", function (evt) {
+    //     $.get("/record?x=" + evt.pageX + "&y=" + evt.pageY + "&src=" + evt.target.id + "&type=" + evt.type + "&webpage=shopping-cart");
+    // });
+
+    $(document).on("click", "body", function (evt) {
+        $.get("/record?sourceElement=body&webpage=shopping-cart");
     });
 </script>
 

@@ -9,7 +9,7 @@ import org.springframework.data.cassandra.core.mapping.Table;
 @Data
 @Table
 @AllArgsConstructor
-public class Clickstream {
+public class UserHit {
 
     @Column
     @PrimaryKey
@@ -17,8 +17,8 @@ public class Clickstream {
     @Column
     private String ip;
     @Column
-    private String sourceElement;
+    private String geohash;
     @Column
-    private String webpage;
+    private String country;
 
 }

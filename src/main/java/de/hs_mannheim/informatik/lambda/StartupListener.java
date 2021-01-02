@@ -20,8 +20,11 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         stockRepository.deleteAll();
-        stockRepository.save(new Stock(null, new Product(new ObjectId().toString(), "Arduino Nano", 20, "blabla", "Arduino", "arduino.jpg"), 20));
-        stockRepository.save(new Stock(null, new Product(new ObjectId().toString(), "Raspberry PI", 45, "blabla", "Raspberry", "Raspberry_Pi_4.jpg"), 50));
+        stockRepository.save(new Stock(null, new Product(new ObjectId().toString(), "Arduino Uno", 20, "Open-source microcontroller board", "arduino.jpg"), 20));
+        stockRepository.save(new Stock(null, new Product(new ObjectId().toString(), "Raspberry PI", 45, "Small single-board computer", "Raspberry_Pi_4.jpg"), 50));
+        stockRepository.save(new Stock(null, new Product(new ObjectId().toString(), "Sharknado", 4, "Sci-fi film DVD", "Sharknado_DVD.jpg"), 11));
+
+
     }
 
 }

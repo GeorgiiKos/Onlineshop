@@ -8,6 +8,10 @@
 </head>
 <body>
 
+<div th:if="${message}" th:text="${message}">
+</div>
+
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="/overview">Onlineshop</a>
@@ -35,9 +39,9 @@
             <div class="card" style="width: 18rem;">
                 <img class="card-img-top" height="190px" th:src="${stock.product.imagePath}">
                 <div class="card-body">
-                    <h5 class="card-title" th:text="${stock.product.name}"></h5>
+                    <h5 class="card-title" th:text="${stock.product.name + ' (' + stock.product.price + '$)'}"></h5>
                     <p class="card-text" th:text="${stock.product.description}"></p>
-                    <form method="get" th:action="@{/add-shopping-cart}" th:object="${addCartRequest}">
+                    <form method="post" th:action="@{/add-shopping-cart}" th:object="${addCartRequest}">
                         <input class="d-none" th:name="stockId" th:value="${stock.id}"/>
                         <div class="row mb-3">
                             <label class="col-6 col-form-label">Amount</label>
@@ -56,8 +60,16 @@
 
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script>
-    $(document).on("mousemove mouseenter mouseleave click", ".cart-btn", function (evt) {
-        $.get("/record?x=" + evt.pageX + "&y=" + evt.pageY + "&src=" + evt.target.id + "&type=" + evt.type + "&webpage=overview");
+    // $(document).on("mousemove mouseenter mouseleave click", ".cart-btn", function (evt) {
+    //     $.get("/record?x=" + evt.pageX + "&y=" + evt.pageY + "&src=" + evt.target.id + "&type=" + evt.type + "&sourceElement=card&webpage=overview");
+    // });
+
+    $(document).on("click", "body", function (evt) {
+        $.get("/record?sourceElement=body&webpage=overview");
+    });
+
+    $(document).ready(function (evt) {
+        $.get("/");
     });
 </script>
 
