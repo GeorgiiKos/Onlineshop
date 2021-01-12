@@ -2,6 +2,10 @@ package de.hs_mannheim.informatik.lambda.controller;
 
 import de.hs_mannheim.informatik.lambda.model.*;
 import de.hs_mannheim.informatik.lambda.repository.*;
+import org.influxdb.InfluxDB;
+import org.influxdb.InfluxDBFactory;
+import org.influxdb.dto.Point;
+import org.influxdb.dto.Pong;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -13,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 public class LambdaController {
@@ -24,6 +29,9 @@ public class LambdaController {
     private final UserHitRepository userHitRepository;
     private final HashMap<String, String> locationData;
 
+    private final InfluxDB client = InfluxDBFactory.connect("http://192.168.56.3:8086", "root", "root");
+
+
     public LambdaController(BillRepository billRepository, ClickstreamRepository clickstreamRepository, StockRepository stockRepository, ShoppingCartRepository shoppingCartRepository, UserHitRepository userHitRepository) {
         this.billRepository = billRepository;
         this.clickstreamRepository = clickstreamRepository;
@@ -34,18 +42,28 @@ public class LambdaController {
         locationData = new LinkedHashMap<>();
         locationData.put("u33dc0cpnp45", "Germany");
         locationData.put("dr5rtwccpbpb", "USA");
-//        locationData.put("", "China");
-//        locationData.put("", "Brazil");
-//        locationData.put("", "Canada");
-//        locationData.put("", "South Africa");
     }
 
     @GetMapping("/")
     public String redirect(HttpServletRequest request) {
-        System.out.println("redirected");
         String geohash = (String) locationData.keySet().toArray()[(int) (Math.random() * locationData.size())];
-        System.out.println(geohash);
         userHitRepository.save(new UserHit(LocalDateTime.now().toString(), request.getRemoteAddr(), geohash, locationData.get(geohash)));
+
+        Pong response = this.client.ping();
+        if (response.getVersion().equalsIgnoreCase("unknown")) {
+            System.out.println("Error pinging server.");
+        }
+
+        Point point = Point.measurement("userhit")
+                .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .addField("ip", request.getRemoteAddr())
+                .tag("geohash", geohash)
+                .addField("country", locationData.get(geohash))
+                .build();
+
+        client.setDatabase("clickstream");
+        client.write(point);
+
         return "redirect:/overview";
     }
 
@@ -53,8 +71,22 @@ public class LambdaController {
     @ResponseBody
     public String recordEvents(@RequestParam String sourceElement, @RequestParam String webpage, HttpServletRequest request) {
         Clickstream clickstream = new Clickstream(LocalDateTime.now().toString(), request.getRemoteAddr(), sourceElement, webpage);
-
         clickstreamRepository.save(clickstream);
+
+        Pong response = this.client.ping();
+        if (response.getVersion().equalsIgnoreCase("unknown")) {
+            System.out.println("Error pinging server.");
+        }
+
+        Point point = Point.measurement("clickstream")
+                .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .addField("ip", request.getRemoteAddr())
+                .addField("sourceElement", sourceElement)
+                .addField("webpage", webpage)
+                .build();
+
+        client.setDatabase("clickstream");
+        client.write(point);
 
         return "ok";
     }
